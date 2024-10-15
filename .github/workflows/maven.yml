@@ -1,10 +1,10 @@
-name: Java CI with Maven
+name: Java CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -12,36 +12,39 @@ jobs:
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
+        ports:
+          - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: auxilium
-        ports:
-          - 3306:3306
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: admin
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
 
-    env:
-      DB_URL: jdbc:mysql://localhost:3306/auxilium
-      DB_USERNAME: admin
-      DB_PASSWORD: admin
-
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: maven
+
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h127.0.0.1 -uadmin -padmin --silent; do
+          echo "Waiting for database connection..."
+          sleep 2
+        done
 
     - name: Build with Maven
-      working-directory: SpringBootVzpostavitev
-      run: mvn -B package --file pom.xml
+      run: mvn clean install
 
-    - name: Run tests
-      working-directory: SpringBootVzpostavitev
+    - name: Run tests with Maven
       run: mvn test
