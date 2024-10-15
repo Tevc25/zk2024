@@ -4,9 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RisApplicationTests {
+public class NesrecaControllerTest {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    public void dodajNesreco() {
+        //testiranje dodajanja nesrece
+
+    }
+
 }
