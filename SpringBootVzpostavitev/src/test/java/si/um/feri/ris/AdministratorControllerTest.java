@@ -9,9 +9,12 @@ import org.springframework.http.ResponseEntity;
 import si.um.feri.ris.controllers.AdministratorController;
 import si.um.feri.ris.models.Administrator;
 import si.um.feri.ris.models.Nesreca;
+import si.um.feri.ris.models.Oskodovanec;
 import si.um.feri.ris.repository.AdministratorRepository;
 import si.um.feri.ris.repository.ListNesrec;
+import si.um.feri.ris.repository.PregledOskodovancev;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
@@ -26,6 +29,9 @@ public class AdministratorControllerTest {
 
     @Mock
     private AdministratorRepository administratorDAO;
+
+    @Mock
+    private PregledOskodovancev oskodovanciDAO;
 
     @InjectMocks
     private AdministratorController administratorController;
@@ -83,5 +89,51 @@ public class AdministratorControllerTest {
         // Assert that the response is OK and the accident was deleted
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Nesreča uspešno izbrisana", response.getBody());
+    }
+
+    @Test
+    void testPrijavaAdmina_Success() {
+        Administrator admin = new Administrator();
+        admin.setId(1L);
+        admin.setUporabniskoIme("testUser");
+        admin.setGeslo("testPassword");
+
+        when(administratorDAO.findByUporabniskoImeAdmin("testUser")).thenReturn(Collections.singletonList(admin));
+
+        ResponseEntity<String> response = administratorController.prijavaAdmina(admin);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("1", response.getBody());
+    }
+
+    @Test
+    void testPrijavaAdmina_WrongPassword() {
+        Administrator admin = new Administrator();
+        admin.setUporabniskoIme("testUser");
+        admin.setGeslo("wrongPassword");
+
+        Administrator existingAdmin = new Administrator();
+        existingAdmin.setId(1L);
+        existingAdmin.setUporabniskoIme("testUser");
+        existingAdmin.setGeslo("testPassword");
+
+        when(administratorDAO.findByUporabniskoImeAdmin("testUser")).thenReturn(Collections.singletonList(existingAdmin));
+
+        ResponseEntity<String> response = administratorController.prijavaAdmina(admin);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals("Napačno geslo", response.getBody());
+    }
+
+    @Test
+    void testDodajOskodovanca_Success() {
+        Oskodovanec oskodovanec = new Oskodovanec();
+
+        when(oskodovanciDAO.save(any(Oskodovanec.class))).thenReturn(oskodovanec);
+
+        ResponseEntity<Oskodovanec> response = administratorController.dodajOskodovanca(oskodovanec);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(oskodovanec, response.getBody());
     }
 }
