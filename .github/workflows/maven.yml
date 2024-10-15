@@ -27,7 +27,8 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
-      working-directory: zk2024/SpringBootVzpostavitev
+      working-directory: SpringBootVzpostavitev
       run: mvn -B package --file pom.xml
 
