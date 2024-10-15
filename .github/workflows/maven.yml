@@ -1,49 +1,47 @@
-name: Build and Test Java Spring Boot Application
+name: Java CI with Maven
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('SpringBootVzpostavitev/**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Build with Maven
-        working-directory: SpringBootVzpostavitev
-        run: mvn clean install
-
-      - name: Run tests
-        working-directory: SpringBootVzpostavitev
-        run: mvn test
-
-      - name: Run Spring Boot application (optional)
-        working-directory: SpringBootVzpostavitev
-        run: mvn spring-boot:run
+    services:
+      mysql:
+        image: mysql:5.7
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/auxilium
-          SPRING_DATASOURCE_USERNAME: admin
-          SPRING_DATASOURCE_PASSWORD: admin
-          SPRING_MAIL_USERNAME: tevz7star@gmail.com
-          SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: auxilium
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    env:
+      DB_URL: jdbc:mysql://localhost:3306/auxilium
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      working-directory: SpringBootVzpostavitev
+      run: mvn -B package --file pom.xml
+
+    - name: Run tests
+      working-directory: SpringBootVzpostavitev
+      run: mvn test
