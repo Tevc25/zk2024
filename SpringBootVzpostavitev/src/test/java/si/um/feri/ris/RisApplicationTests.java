@@ -9,5 +9,4 @@ class RisApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
