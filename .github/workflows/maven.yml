@@ -26,8 +26,8 @@ jobs:
 
     env:
       DB_URL: jdbc:mysql://localhost:3306/auxilium
-      DB_USERNAME: root
-      DB_PASSWORD: root
+      DB_USERNAME: admin
+      DB_PASSWORD: admin
 
     steps:
     - uses: actions/checkout@v4
