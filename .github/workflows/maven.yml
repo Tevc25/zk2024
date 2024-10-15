@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -24,6 +23,11 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+
+    env:
+      DB_URL: jdbc:mysql://localhost:3306/auxilium
+      DB_USERNAME: root
+      DB_PASSWORD: root
 
     steps:
     - uses: actions/checkout@v4
@@ -41,7 +45,3 @@ jobs:
     - name: Run tests
       working-directory: SpringBootVzpostavitev
       run: mvn test
-      env:
-        DB_URL: jdbc:mysql://localhost:3306/auxilium
-        DB_USERNAME: root
-        DB_PASSWORD: root
