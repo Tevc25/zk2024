@@ -8,5 +8,6 @@ class RisApplicationTests {
 
 	@Test
 	void contextLoads() {
+		//okej kulsko
 	}
 }
